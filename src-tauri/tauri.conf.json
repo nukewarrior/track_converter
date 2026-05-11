@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "zGPSconv Studio",
+  "version": "0.1.0",
+  "identifier": "com.nukewarrior.zgpsconv-studio",
+  "build": {
+    "frontendDist": "../app"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "zGPSconv Studio",
+        "label": "main",
+        "width": 1180,
+        "height": 780,
+        "minWidth": 1040,
+        "minHeight": 700,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": false,
+    "targets": "all"
+  }
+}

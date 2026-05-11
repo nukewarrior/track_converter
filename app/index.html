@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>zGPSconv Studio</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">Z</div>
+          <div>
+            <h1>zGPSconv Studio</h1>
+            <p>CSV / GPX / KML 轨迹坐标转换</p>
+          </div>
+        </div>
+        <div class="runtime-badge" id="runtime-badge">Tauri</div>
+      </header>
+
+      <main class="workspace">
+        <section class="main-column" aria-label="文件和预览">
+          <section class="pane queue-pane" aria-labelledby="queue-title">
+            <div class="pane-heading">
+              <div>
+                <h2 id="queue-title">文件队列</h2>
+                <p id="queue-subtitle">0 个文件等待处理</p>
+              </div>
+              <div class="button-row">
+                <button class="secondary-button" id="add-file" type="button">添加文件</button>
+                <button class="text-button" id="clear-files" type="button">清空</button>
+              </div>
+            </div>
+
+            <input id="file-input" type="file" accept=".csv,.gpx,.kml,.gdb" multiple hidden />
+
+            <div class="drop-zone" id="drop-zone" tabindex="0">
+              <div class="drop-copy">
+                <strong>选择轨迹文件</strong>
+                <span>支持 CSV、GPX、KML；GDB 当前只跳过记录</span>
+              </div>
+            </div>
+
+            <div class="file-list" id="file-list" aria-live="polite"></div>
+          </section>
+
+          <section class="pane preview-pane" aria-labelledby="preview-title">
+            <div class="pane-heading preview-heading">
+              <div>
+                <h2 id="preview-title">轨迹预览</h2>
+                <p id="preview-subtitle">当前：无文件</p>
+              </div>
+              <div class="legend" aria-label="轨迹图例">
+                <span><i class="legend-source"></i>原始</span>
+                <span><i class="legend-output"></i>转换后</span>
+              </div>
+            </div>
+
+            <div class="track-map" aria-label="轨迹转换示意">
+              <svg viewBox="0 0 780 340" role="img" aria-labelledby="map-title">
+                <title id="map-title">轨迹转换前后的线条预览</title>
+                <defs>
+                  <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+                <path class="route-source" d="M60 248 C138 206 176 122 257 142 C346 164 353 263 438 238 C514 216 536 95 625 112 C686 124 706 184 733 168" />
+                <path class="route-output" d="M69 238 C150 194 185 114 266 134 C357 155 366 253 449 228 C525 205 550 88 636 103 C697 115 719 174 744 159" />
+                <circle class="pin start" cx="69" cy="238" r="7" />
+                <circle class="pin end" cx="744" cy="159" r="7" />
+              </svg>
+              <div class="map-stats">
+                <div><span>格式</span><strong id="stat-format">-</strong></div>
+                <div><span>大小</span><strong id="stat-size">-</strong></div>
+                <div><span>偏移</span><strong id="stat-mode">加偏</strong></div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <aside class="side-column" aria-label="转换设置">
+          <section class="pane settings-pane" aria-labelledby="settings-title">
+            <div class="pane-heading">
+              <div>
+                <h2 id="settings-title">转换设置</h2>
+                <p>输出文件默认写入源文件夹</p>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                <span>输入格式</span>
+                <select id="input-format">
+                  <option value="auto">自动识别</option>
+                  <option value="csv">CSV</option>
+                  <option value="gpx">GPX</option>
+                  <option value="kml">KML</option>
+                </select>
+              </label>
+
+              <label>
+                <span>输出格式</span>
+                <select id="output-format">
+                  <option value="gpx">GPX</option>
+                  <option value="kml">KML</option>
+                  <option value="csv">CSV</option>
+                  <option value="gdb" disabled>GDB 即将支持</option>
+                </select>
+              </label>
+            </div>
+
+            <fieldset class="mode-box">
+              <legend>坐标处理</legend>
+              <div class="segmented" id="mode-control">
+                <button type="button" data-mode="none">不偏移</button>
+                <button type="button" data-mode="add" class="active">加偏</button>
+                <button type="button" data-mode="remove">纠偏</button>
+              </div>
+            </fieldset>
+
+            <section class="csv-panel hidden" id="csv-panel" aria-label="CSV 列映射">
+              <div class="section-title">CSV 列映射</div>
+              <div class="form-grid">
+                <label>
+                  <span>经度列</span>
+                  <input id="csv-lon-column" type="text" placeholder="lon / longitude / 1" />
+                </label>
+                <label>
+                  <span>纬度列</span>
+                  <input id="csv-lat-column" type="text" placeholder="lat / latitude / 2" />
+                </label>
+              </div>
+              <label class="check-row">
+                <input id="csv-no-header" type="checkbox" />
+                <span>CSV 无表头，列名按 1 开始的序号填写</span>
+              </label>
+            </section>
+
+            <div class="stacked-fields">
+              <label>
+                <span>输出目录</span>
+                <input type="text" value="同源文件夹" readonly />
+              </label>
+              <label>
+                <span>命名规则</span>
+                <input id="suffix-field" type="text" value="_gcj02" readonly />
+              </label>
+            </div>
+
+            <div class="progress-wrap" id="progress-wrap" aria-hidden="true">
+              <div class="progress-label">
+                <span>转换中</span>
+                <span id="progress-value">0%</span>
+              </div>
+              <div class="progress-track"><div id="progress-bar"></div></div>
+            </div>
+
+            <button class="primary-button" id="start-convert" type="button">开始转换</button>
+          </section>
+
+          <section class="pane result-pane" aria-labelledby="result-title">
+            <div class="pane-heading">
+              <div>
+                <h2 id="result-title">本次结果</h2>
+                <p id="result-subtitle">等待转换</p>
+              </div>
+            </div>
+            <div class="result-grid">
+              <div><span>成功</span><strong id="result-ok">0</strong></div>
+              <div><span>跳过</span><strong id="result-skip">0</strong></div>
+              <div><span>失败</span><strong id="result-fail">0</strong></div>
+            </div>
+            <div class="log-list" id="log-list" aria-live="polite">
+              <div class="log-item muted">转换日志会显示在这里</div>
+            </div>
+            <div class="button-row result-actions">
+              <button class="secondary-button" id="open-output" type="button" disabled>打开目录</button>
+            </div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
