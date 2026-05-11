@@ -53,6 +53,7 @@ Track Converter 是一个桌面轨迹文件转换工具，用于在 CSV、GPX、
 - 每次 `push` 自动编译。
 - 支持在 Actions 页面手动触发 `Build Tauri`。
 - 当前工作流会在 Windows、macOS、Linux 上运行 Rust 测试并构建应用。
+- Actions 上传的是 Tauri bundle 产物，例如 Windows 安装包，而不是裸 `target/release` 二进制。
 
 工作流文件位于：
 
