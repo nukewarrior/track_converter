@@ -1,7 +1,7 @@
 [package]
-name = "zgpsconv-studio"
+name = "track-converter"
 version = "0.1.0"
-description = "A small Tauri utility for zGPSconv-compatible track conversion"
+description = "A small Tauri utility for track format and coordinate conversion"
 authors = ["nukewarrior"]
 edition = "2021"
 license = "MIT"

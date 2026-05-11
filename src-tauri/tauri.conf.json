@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "zGPSconv Studio",
+  "productName": "Track Converter",
   "version": "0.1.0",
-  "identifier": "com.nukewarrior.zgpsconv-studio",
+  "identifier": "com.nukewarrior.trackconverter",
   "build": {
     "frontendDist": "../app"
   },
@@ -10,7 +10,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "zGPSconv Studio",
+        "title": "Track Converter",
         "label": "main",
         "width": 1180,
         "height": 780,

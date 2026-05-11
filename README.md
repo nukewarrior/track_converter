@@ -1,32 +1,74 @@
-# zGPSconv Studio
+# Track Converter
 
-一个基于 Tauri 的轨迹坐标转换小工具，用于复现 zGPSconv 的核心 GCJ-02 加偏 / 纠偏能力。
+Track Converter 是一个桌面轨迹文件转换工具，用于在 CSV、GPX、KML 等常见轨迹格式之间转换点位数据，并提供 GCJ-02 坐标加偏 / 纠偏能力。
 
-## 当前能力
+项目目标是提供一个直接、轻量的轨迹转换工作台：选择轨迹文件，选择输出格式，选择坐标处理方式，然后批量生成转换后的文件。
 
-- 批量选择 CSV / GPX / KML 文件。
-- 支持不偏移、WGS84 -> GCJ-02 加偏、GCJ-02 -> WGS84 纠偏。
+## 功能特性
+
+- 批量选择 CSV、GPX、KML 轨迹文件。
+- 支持三种坐标处理方式：
+  - 不偏移：只做格式转换。
+  - 加偏：WGS84 -> GCJ-02。
+  - 纠偏：GCJ-02 -> WGS84。
 - 同格式输出时尽量保留原文件结构。
-- 跨格式输出时导出简化点位 CSV、GPX 或 KML。
-- GDB 当前仅作为后续能力预留，不参与转换。
+- 跨格式输出时导出简化点位数据。
+- 自动生成输出文件名：
+  - `_gcj02`：加偏结果。
+  - `_wgs84`：纠偏结果。
+  - `_converted`：不偏移转换结果。
+- 转换完成后显示成功、跳过、失败统计和任务日志。
 
-## 本机约束
+## 支持格式
 
-当前机器不安装 Rust、Tauri、npm 依赖或其他应用。项目文件已经写好，编译交给 GitHub Actions：
+| 格式 | 输入 | 输出 | 说明 |
+| --- | --- | --- | --- |
+| CSV | 支持 | 支持 | 自动识别 `lon` / `lat` 等列名，也可手动指定列 |
+| GPX | 支持 | 支持 | 转换 `wpt`、`trkpt`、`rtept` 坐标 |
+| KML | 支持 | 支持 | 转换 `coordinates` 中的经纬度 |
+| GDB | 预留 | 预留 | 当前版本暂不转换 |
 
-- 每次 `push` 自动触发。
-- 也可以在 GitHub Actions 页面手动触发 `Build Tauri`。
+## 使用方式
 
-## 云端编译
+1. 打开 Track Converter。
+2. 点击“添加文件”，选择一个或多个 CSV / GPX / KML 文件。
+3. 选择输入格式和输出格式；通常输入格式保持“自动识别”即可。
+4. 选择坐标处理方式：不偏移、加偏或纠偏。
+5. 如果输入 CSV 且无法自动识别经纬度列，可以填写经度列、纬度列名称或列序号。
+6. 点击“开始转换”。
 
-工作流位置：
+输出文件会写入源文件所在目录，不覆盖原文件。
+
+## 技术实现
+
+- 桌面框架：Tauri 2。
+- 前端：原生 HTML / CSS / JavaScript。
+- 转换核心：Rust。
+- 坐标算法：GCJ-02 加偏与迭代纠偏。
+
+## 构建
+
+项目提供 GitHub Actions 编译流程：
+
+- 每次 `push` 自动编译。
+- 支持在 Actions 页面手动触发 `Build Tauri`。
+- 当前工作流会在 Windows、macOS、Linux 上运行 Rust 测试并构建应用。
+
+工作流文件位于：
 
 ```text
 .github/workflows/build.yml
 ```
 
-工作流会在 Windows、macOS、Linux 上安装构建环境，运行 Rust 单元测试，然后执行：
+本地具备 Node.js、Rust 和 Tauri 环境时，也可以执行：
 
 ```bash
-npm run build -- --verbose
+npm install
+npm run build
 ```
+
+## 当前限制
+
+- GDB / MapSource 文件格式尚未实现。
+- 跨格式输出以点位导出为主，不保留所有源文件扩展元数据。
+- CSV 自动列识别覆盖常见列名；特殊表头需要手动指定经纬度列。

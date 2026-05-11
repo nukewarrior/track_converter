@@ -305,7 +305,7 @@ fn write_points_csv(output_path: &Path, points: &[TrackPoint]) -> Result<(), Str
 fn write_points_gpx(output_path: &Path, points: &[TrackPoint]) -> Result<(), String> {
     let mut text = String::from(
         r#"<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="zGPSconv Studio" xmlns="http://www.topografix.com/GPX/1/1">
+<gpx version="1.1" creator="Track Converter" xmlns="http://www.topografix.com/GPX/1/1">
   <trk>
     <name>converted</name>
     <trkseg>
@@ -742,7 +742,7 @@ fn main() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![convert_files])
         .run(tauri::generate_context!())
-        .expect("error while running zGPSconv Studio");
+        .expect("error while running Track Converter");
 }
 
 #[cfg(test)]

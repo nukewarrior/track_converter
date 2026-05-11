@@ -1,4 +1,4 @@
-name: Build Tauri
+name: Build Track Converter
 
 on:
   push:
@@ -51,9 +51,9 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: zgpsconv-studio-${{ runner.os }}
+          name: track-converter-${{ runner.os }}
           if-no-files-found: error
           path: |
-            src-tauri/target/release/zgpsconv-studio
-            src-tauri/target/release/zgpsconv-studio.exe
+            src-tauri/target/release/track-converter
+            src-tauri/target/release/track-converter.exe
             src-tauri/target/release/bundle/**
